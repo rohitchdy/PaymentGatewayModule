@@ -1,0 +1,6 @@
+@DemoPaymentAPI_HostAddress = http://localhost:5192
+
+GET {{DemoPaymentAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
