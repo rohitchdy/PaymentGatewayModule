@@ -6,7 +6,6 @@ namespace PaymentGatewayAPI.DatabaseContext;
 public class ApplicationDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<Customer> Customers { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -24,7 +23,7 @@ public class ApplicationDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
 
-            
+
 
             entity.Property(u => u.PasswordHash)
                 .IsRequired()
@@ -34,36 +33,23 @@ public class ApplicationDbContext : DbContext
                 .IsRequired();
         });
 
-        modelBuilder.Entity<Customer>(entity =>
-        {
-            entity.HasKey(c => c.CustomerId);
-
-            entity.Property(c => c.FullName)
-                .IsRequired()
-                .HasMaxLength(200);
-
-            entity.Property(c => c.Email)
-                .IsRequired()
-                .HasMaxLength(255)
-                .IsUnicode(false);
-
-            entity.Property(c => c.CreatedOn)
-                .IsRequired();
-
-            entity.HasOne(c => c.User)
-                .WithOne(u => u.Customer)
-                .HasForeignKey<Customer>(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.HasKey(t => t.TransactionId);
 
-            entity.HasOne(t => t.Customer)
+            entity.HasOne(u => u.User)
                 .WithMany(c => c.Transactions)
-                .HasForeignKey(t => t.CustomerId)
+                .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(t => t.FullName)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(t => t.Email)
+                .IsRequired()
+                .HasMaxLength(255)
+                .IsUnicode(false);
 
             entity.Property(t => t.Amount)
                 .IsRequired()

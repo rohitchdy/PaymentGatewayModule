@@ -37,36 +37,5 @@ public class SeedService : ISeedService
                 });
             await _context.SaveChangesAsync();
         }
-
-        var isCustomerExist = _context.Customers.Any();
-        if (!isCustomerExist)
-        {
-            var user1 = await _context.Users.Where(u => u.UserName == "random_person").FirstOrDefaultAsync();
-            var user2 = await _context.Users.Where(u => u.UserName == "unknown_person").FirstOrDefaultAsync();
-
-            if (user1 != null && user2 != null)
-            {
-                await _context.Customers.AddRangeAsync(
-                    new Customer
-                    {
-                        CustomerId = Guid.NewGuid(),
-                        FullName = "Random Person",
-                        Email = "random.persom@gmail.com",
-                        CreatedOn = DateTime.UtcNow,
-                        UserId = user1.UserId,
-                        User = user1
-                    },
-                    new Customer
-                    {
-                        CustomerId = Guid.NewGuid(),
-                        FullName = "Unknown Person",
-                        Email = "unknowm.person@gmail.com",
-                        CreatedOn = DateTime.UtcNow,
-                        UserId = user2.UserId,
-                        User = user2
-                    });
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 }
