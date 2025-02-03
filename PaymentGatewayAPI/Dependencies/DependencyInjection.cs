@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PaymentGatewayAPI.Common;
 using PaymentGatewayAPI.DatabaseContext;
 using PaymentGatewayAPI.Interfaces;
@@ -14,6 +15,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddService(this IServiceCollection services, ConfigurationManager configuration)
     {
+        services.AddSwaggerConfiguration();
         services.AddDatabaseProvider(configuration);
         services.AddPasswordHash(configuration);
         services.AddScoped<ISeedService, SeedService>();
@@ -58,6 +60,55 @@ public static class DependencyInjection
         });
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         return services;
+    }
+
+    public static void AddSwaggerConfiguration(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(config =>
+        {
+            config.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "PaymentGatewayApis",
+                Version = "v1",
+                Description = "To test API from Swagger",
+                Contact = new OpenApiContact
+                {
+                    Name = "API Support",
+                    Url = new Uri("https://www.api.com/support"),
+                    Email = "rohitchy165@gmail.com"
+                },
+                TermsOfService = new Uri("https://www.api.com/termsandservices"),
+            });
+
+            config.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Description = "Enter the Bearer Authorization string as following: `Bearer Generated-JWT-Token`",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
+
+            config.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
+        });
+
+        services.AddSwaggerGenNewtonsoftSupport();
     }
 
 }
