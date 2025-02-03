@@ -1,10 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
+using PaymentGatewayAPI.DatabaseContext;
 using PaymentGatewayAPI.Dependencies;
+using PaymentGatewayAPI.Interfaces;
 using Serilog;
 
 try
 {
-	var builder = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
     builder.Services.AddService(builder.Configuration);
@@ -16,24 +19,31 @@ try
 
 
     builder.Services.AddEndpointsApiExplorer();
-	builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen();
 
-	var app = builder.Build();
+    var app = builder.Build();
 
 
-	if (app.Environment.IsDevelopment())
-	{
-		app.UseSwagger();
-		app.UseSwaggerUI();
-	}
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-	app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 
-	app.UseAuthorization();
+    app.UseAuthorization();
 
-	app.MapControllers();
+    app.MapControllers();
 
-	app.Run();
+    var scope = app.Services.CreateScope();
+    var dataContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await dataContext.Database.MigrateAsync();
+
+    var seedService = scope.ServiceProvider.GetRequiredService<ISeedService>();
+    await seedService.SeedAsync();
+
+    await app.RunAsync();
 }
 catch (Exception ex)
 {
