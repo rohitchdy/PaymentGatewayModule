@@ -1,5 +1,3 @@
-using DemoPaymentAPI.Requests;
-using DemoPaymentAPI.Validators;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DemoPaymentAPI.Controllers
@@ -11,21 +9,11 @@ namespace DemoPaymentAPI.Controllers
         private static readonly string[] Statuses = { "Success", "Pending", "Failed" };
 
         [HttpPost("ProcessPayment")]
-        public async Task<IActionResult> ProcessPayment([FromBody] PaymentRequest request)
+        public async Task<IActionResult> ProcessPayment()
         {
-            var validator = new PaymentRequestValidator();
-            var validationResult = validator.Validate(request);
-
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(e => e.ErrorMessage);
-                return BadRequest(new { Errors = errors });
-            }
-
             await Task.Delay(3000);
             Random random = new Random();
 
-            // Randomly select a transaction status
             string status = Statuses[random.Next(Statuses.Length)];
 
             return Ok(new

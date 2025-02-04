@@ -24,9 +24,8 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)), SecurityAlgorithms.HmacSha256);
         var claims = new Claim[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-            new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new Claim(ClaimTypes.UserData, user.UserName.ToString()),
         };
         var securityToken = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

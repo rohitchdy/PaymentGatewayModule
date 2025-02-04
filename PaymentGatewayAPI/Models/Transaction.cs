@@ -10,6 +10,6 @@ public class Transaction
     public string PaymentMode { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedOn { get; set; }
-    public required User User { get; set; }
+    public User? User { get; set; }
     public Guid UserId { get; set; }
 }

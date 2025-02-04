@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using PaymentGatewayAPI.DatabaseContext;
+﻿using PaymentGatewayAPI.DatabaseContext;
 using PaymentGatewayAPI.Interfaces;
 using PaymentGatewayAPI.Models;
 

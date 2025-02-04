@@ -5,4 +5,5 @@ namespace PaymentGatewayAPI.Interfaces;
 public interface IAuthenticationService
 {
     Task<User>? GetUserByUserName(string userName);
+    Task<Guid?> GetCurrentUserId();
 }

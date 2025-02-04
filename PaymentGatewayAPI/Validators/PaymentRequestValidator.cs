@@ -1,7 +1,7 @@
-﻿using DemoPaymentAPI.Requests;
+﻿using PaymentGatewayAPI.Requests;
 using FluentValidation;
 
-namespace DemoPaymentAPI.Validators;
+namespace PaymentGatewayAPI.Validators;
 
 public class PaymentRequestValidator : AbstractValidator<PaymentRequest>
 {

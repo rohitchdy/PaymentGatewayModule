@@ -1,4 +1,4 @@
-﻿namespace DemoPaymentAPI.Requests;
+﻿namespace PaymentGatewayAPI.Requests;
 
 public class PaymentRequest
 {

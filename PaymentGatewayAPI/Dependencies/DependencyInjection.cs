@@ -4,9 +4,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PaymentGatewayAPI.Common;
+using PaymentGatewayAPI.Configurations;
 using PaymentGatewayAPI.DatabaseContext;
 using PaymentGatewayAPI.Interfaces;
 using PaymentGatewayAPI.Services;
+using RabbitMQ.Client;
 using System.Text;
 
 namespace PaymentGatewayAPI.Dependencies;
@@ -21,6 +23,10 @@ public static class DependencyInjection
         services.AddScoped<ISeedService, SeedService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddAuth(configuration);
+        services.AddDemoPaymentConfiguration(configuration);
+        services.AddRabbmitMQConfiguration(configuration);
+        services.AddScoped<IPaymentTransactionService, PaymentTransactionService>();
+        services.AddTransient<IHostedService, PaymentEventConsumer>();
         return services;
     }
 
@@ -59,6 +65,7 @@ public static class DependencyInjection
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
         });
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddHttpContextAccessor();
         return services;
     }
 
@@ -110,5 +117,48 @@ public static class DependencyInjection
 
         services.AddSwaggerGenNewtonsoftSupport();
     }
+    public static IServiceCollection AddDemoPaymentConfiguration(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        var demoPaymentSettings = new DemoPaymentAPISettings();
+        configuration.Bind(DemoPaymentAPISettings.SectionName, demoPaymentSettings);
+        services.AddSingleton(Options.Create(demoPaymentSettings));
+        return services;
+    }
 
+    public static IServiceCollection AddRabbmitMQConfiguration(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        services.Configure<RabbitMQConfiguration>(configuration.GetSection(RabbitMQConfiguration.SectionName));
+
+        services.AddSingleton<IConnection>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<RabbitMQConfiguration>>().Value;
+            if (string.IsNullOrEmpty(options.HostName))
+            {
+                throw new ArgumentNullException(nameof(options.HostName), "RabbitMQ HostName is not configured.");
+            }
+
+            var factory = new ConnectionFactory()
+            {
+                HostName = options.HostName,
+                Port = options.PortNo,
+                UserName = options.UserName,
+                Password = options.Password,
+                RequestedConnectionTimeout = TimeSpan.FromMilliseconds(3000)
+            };
+
+            return factory.CreateConnection();
+        });
+        services.AddScoped<IModel>(sp =>
+        {
+            var connection = sp.GetRequiredService<IConnection>();
+            return connection.CreateModel();
+        });
+        services.AddScoped<IPaymentPaymentPublisher, PaymentEventPublisher>();
+
+        //services.AddSingleton<PaymentEventPublisher>();
+        services.AddHttpClient();
+        services.AddHostedService<PaymentEventConsumer>();
+
+        return services;
+    }
 }
