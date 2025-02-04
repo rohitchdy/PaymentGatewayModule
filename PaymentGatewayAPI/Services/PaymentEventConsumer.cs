@@ -87,14 +87,8 @@ public class PaymentEventConsumer : BackgroundService
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorResponse = new DemoPaymentResponse
-                {
-                    Status = "Failed",
-                    Message = $"Failed to process payment. Status code: {response.StatusCode}, Reason: {response.ReasonPhrase}",
-                    Timestamp = DateTime.UtcNow
-                };
-
-                return errorResponse;
+                string errorString = await response.Content.ReadAsStringAsync();
+                throw new Exception(errorString);
             }
 
             var responseString = await response.Content.ReadAsStringAsync();

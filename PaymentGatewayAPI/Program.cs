@@ -3,6 +3,7 @@ using Newtonsoft.Json.Serialization;
 using PaymentGatewayAPI.DatabaseContext;
 using PaymentGatewayAPI.Dependencies;
 using PaymentGatewayAPI.Interfaces;
+using PaymentGatewayAPI.Middlewares;
 using Serilog;
 
 try
@@ -33,7 +34,7 @@ try
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
-
+    app.UseMiddleware<RetryMiddleware>();
     app.MapControllers();
 
     var scope = app.Services.CreateScope();
