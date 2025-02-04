@@ -9,6 +9,7 @@ using PaymentGatewayAPI.DatabaseContext;
 using PaymentGatewayAPI.Interfaces;
 using PaymentGatewayAPI.Services;
 using RabbitMQ.Client;
+using Serilog;
 using System.Text;
 
 namespace PaymentGatewayAPI.Dependencies;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddRabbmitMQConfiguration(configuration);
         services.AddScoped<IPaymentTransactionService, PaymentTransactionService>();
         services.AddTransient<IHostedService, PaymentEventConsumer>();
+        services.AddSerilogConfiguration(configuration);
         return services;
     }
 
@@ -159,6 +161,14 @@ public static class DependencyInjection
         services.AddHttpClient();
         services.AddHostedService<PaymentEventConsumer>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddSerilogConfiguration(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration)
+            .CreateLogger();
+        services.AddSerilog(Log.Logger, dispose: false);
         return services;
     }
 }

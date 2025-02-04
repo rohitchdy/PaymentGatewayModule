@@ -15,10 +15,12 @@ public class PaymentController : ControllerBase
 {
     private readonly IPaymentPaymentPublisher _eventPublisher;
     private readonly IPaymentTransactionService _transactionService;
-    public PaymentController(IDateTimeProvider dateTimeProvider, ApplicationDbContext context, IAuthenticationService authenticationService, IPaymentPaymentPublisher eventPublisher, IPaymentTransactionService transactionService)
+    private readonly ILogger<PaymentController> _logger;
+    public PaymentController(IDateTimeProvider dateTimeProvider, ApplicationDbContext context, IAuthenticationService authenticationService, IPaymentPaymentPublisher eventPublisher, IPaymentTransactionService transactionService, ILogger<PaymentController> logger)
     {
         _eventPublisher = eventPublisher;
         _transactionService = transactionService;
+        _logger = logger;
     }
 
     [HttpPost("ProcessPayment")]
@@ -28,11 +30,16 @@ public class PaymentController : ControllerBase
         var validator = new PaymentRequestValidator();
         var validationResult = validator.Validate(request);
 
+
+
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage);
+            _logger.LogError(string.Join(",", errors));
             return BadRequest(new { Errors = errors });
         }
+
+
         try
         {
             var correlationId = Guid.NewGuid().ToString();
@@ -41,6 +48,7 @@ public class PaymentController : ControllerBase
 
             if (string.IsNullOrEmpty(eventResponse))
             {
+                _logger.LogError(eventResponse);
                 return StatusCode(500, new { Message = "No response received from the payment processor." });
             }
 
@@ -48,6 +56,7 @@ public class PaymentController : ControllerBase
 
             if (paymentResponse == null)
             {
+                _logger.LogError($"Payment response is null");
                 return StatusCode(500, new { Message = "Invalid response format from the payment processor." });
             }
 
@@ -59,6 +68,7 @@ public class PaymentController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError($"An error occurred while processing the payment.", ex.Message);
             return StatusCode(500, new { Message = "An error occurred while processing the payment.", Error = ex.Message });
         }
     }

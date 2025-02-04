@@ -22,12 +22,14 @@ public class PaymentEventConsumer : BackgroundService
     private readonly DemoPaymentAPISettings _settings;
     private readonly string _requestQueueName = "thirdPartyApiRequestQueue";
     private readonly string _responseQueueName = "thirdPartyApiResponseQueue";
+    private readonly ILogger<PaymentEventConsumer> _logger;
 
-    public PaymentEventConsumer(IConnection connection, HttpClient httpClient, IOptions<DemoPaymentAPISettings> settings)
+    public PaymentEventConsumer(IConnection connection, HttpClient httpClient, IOptions<DemoPaymentAPISettings> settings, ILogger<PaymentEventConsumer> logger)
     {
         _httpClient = httpClient;
         _connection = connection;
         _settings = settings.Value;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,6 +49,7 @@ public class PaymentEventConsumer : BackgroundService
                 var request = JsonConvert.DeserializeObject<PaymentRequest>(message);
                 if (request == null)
                 {
+                    _logger.LogError("Invalid PaymentRequest format");
                     throw new Exception("Invalid PaymentRequest format");
                 }
 
@@ -88,6 +91,7 @@ public class PaymentEventConsumer : BackgroundService
             if (!response.IsSuccessStatusCode)
             {
                 string errorString = await response.Content.ReadAsStringAsync();
+                _logger.LogError(errorString);
                 throw new Exception(errorString);
             }
 
@@ -108,6 +112,7 @@ public class PaymentEventConsumer : BackgroundService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             return new DemoPaymentResponse
             {
                 Status = "Failed",

@@ -8,16 +8,17 @@ namespace PaymentGatewayAPI.Services;
 
 public class PaymentTransactionService : IPaymentTransactionService
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly IAuthenticationService _authenticationService;
     private readonly ApplicationDbContext _dbContext;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ILogger<PaymentTransactionService> _logger;
 
-    public PaymentTransactionService(IAuthenticationService authenticationService, IDateTimeProvider dateTimeProvider, ApplicationDbContext dbContext)
+    public PaymentTransactionService(IAuthenticationService authenticationService, IDateTimeProvider dateTimeProvider, ApplicationDbContext dbContext, ILogger<PaymentTransactionService> logger)
     {
         _authenticationService = authenticationService;
         _dateTimeProvider = dateTimeProvider;
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     public async Task<Transaction> SaveTransaction(PaymentRequest request, DemoPaymentResponse response)
@@ -46,8 +47,9 @@ public class PaymentTransactionService : IPaymentTransactionService
                 await dbTransaction.CommitAsync();
                 return transaction;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 await dbTransaction.RollbackAsync();
                 throw;
             }
