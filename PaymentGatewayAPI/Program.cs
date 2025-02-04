@@ -35,6 +35,7 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseMiddleware<RetryMiddleware>();
+    app.UseMiddleware<GlobalExceptionMiddleware>();
     app.MapControllers();
 
     var scope = app.Services.CreateScope();
