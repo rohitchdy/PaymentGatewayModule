@@ -4,5 +4,5 @@ namespace PaymentGatewayAPI.Requests;
 
 public record AuthenticationResponse(
     User user,
-    string Token
+    string token
 );

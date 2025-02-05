@@ -62,6 +62,11 @@ public class PaymentController : ControllerBase
 
             var transaction = await _transactionService.SaveTransaction(request, paymentResponse);
 
+            if (paymentResponse.Status == "Failed")
+            {
+                throw new Exception("Payment not success.");
+            }
+
             return Ok(transaction);
 
 
