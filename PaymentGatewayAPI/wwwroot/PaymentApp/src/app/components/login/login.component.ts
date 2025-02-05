@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
           if (response && response.token) {
             this.authService.login(response.token);
             this.authService.CheckIfUserAuthenticated()
-            this.router.navigate(['/checkout']);
+            this.router.navigate(['/dashboard']);
           } else {
             alert('Invalid login response');
           }

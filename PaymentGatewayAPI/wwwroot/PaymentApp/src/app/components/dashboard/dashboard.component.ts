@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -6,10 +7,40 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
+  Transactions: Transaction[] = [];
+  FilteredTransactions: Transaction[] = [];
 
-  constructor() { }
+  Status: string = '';
+  UserName: string = '';
+  FromDate: string = '';
+  ToDate: string = '';
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
   }
 
+  GetPayments() {
+    if (!this.FromDate || !this.ToDate) {
+      alert('Please select valid date range');
+      return;
+    }
+    this.apiService.getPayments(this.FromDate, this.ToDate, this.Status, this.UserName).subscribe((res: any) => {
+      if (res) {
+        this.Transactions = res;
+      }
+    })
+  }
+
+}
+
+interface Transaction {
+  TransactionId: string;
+  Status: string;
+  Currency: string;
+  Amount: number;
+  TransactionDate: string;
+  PaymentMode: string;
+  CustomerName: string;
+  Email: string;
+  UserName: string;
 }

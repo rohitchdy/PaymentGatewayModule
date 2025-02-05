@@ -83,8 +83,9 @@ public class PaymentController : ControllerBase
     [HttpGet]
     [Route("Payments")]
     [Authorize]
-    public IActionResult GetPayments()
+    public async Task<IActionResult> GetPayments(DateTime fromDate, DateTime toDate, string? status, string? userName)
     {
-        return Ok("Payments");
+        var transactions = await _transactionService.GetPayments(fromDate, toDate, status, userName);
+        return Ok(transactions);
     }
 }

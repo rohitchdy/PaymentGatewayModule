@@ -1,1 +1,70 @@
-<p>dashboard works!</p>
+<div class="container mt-4">
+    <h2 class="mb-3">Transaction History</h2>
+    <div class="row mb-3">
+
+        <div class="col-md-3">
+            <label>Start Date:</label>
+            <input type="date" class="form-control" [(ngModel)]="FromDate">
+        </div>
+        
+        <div class="col-md-3">
+            <label>End Date:</label>
+            <input type="date" class="form-control" [(ngModel)]="ToDate">
+        </div>
+        
+        <div class="col-md-2">
+            <label>Status:</label>
+            <select class="form-control" [(ngModel)]="Status">
+                <option value="">All</option>
+                <option value="Completed">Completed</option>
+                <option value="Pending">Pending</option>
+                <option value="Failed">Failed</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label>User Name:</label>
+            <input type="text" class="form-control" [(ngModel)]="UserName" placeholder="Search by User Name">
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-primary mb-3" (click)="GetPayments()">Load</button>
+        
+        </div>
+        </div>
+        
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Status</th>
+                        <th>Currency</th>
+                        <th>Amount</th>
+                        <th>Transaction Date</th>
+                        <th>Payment Mode</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>User Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let txn of Transactions">
+                        <td>{{ txn.TransactionId }}</td>
+                        <td>
+                            <span [class]="txn.Status === 'Completed' ? 'text-success' : 'text-warning'">
+                                {{ txn.Status }}
+                            </span>
+                        </td>
+                        <td>{{ txn.Currency }}</td>
+                        <td>{{ txn.Amount | currency:txn.Currency }}</td>
+                        <td>{{ txn.TransactionDate }}</td>
+                        <td>{{ txn.PaymentMode }}</td>
+                        <td>{{ txn.CustomerName }}</td>
+                        <td>{{ txn.Email }}</td>
+                        <td>{{ txn.UserName }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
