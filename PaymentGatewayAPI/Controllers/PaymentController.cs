@@ -16,11 +16,13 @@ public class PaymentController : ControllerBase
     private readonly IPaymentPaymentPublisher _eventPublisher;
     private readonly IPaymentTransactionService _transactionService;
     private readonly ILogger<PaymentController> _logger;
-    public PaymentController(IDateTimeProvider dateTimeProvider, ApplicationDbContext context, IAuthenticationService authenticationService, IPaymentPaymentPublisher eventPublisher, IPaymentTransactionService transactionService, ILogger<PaymentController> logger)
+    private readonly IEmailService _emailService;
+    public PaymentController(IDateTimeProvider dateTimeProvider, ApplicationDbContext context, IAuthenticationService authenticationService, IPaymentPaymentPublisher eventPublisher, IPaymentTransactionService transactionService, ILogger<PaymentController> logger, IEmailService emailService)
     {
         _eventPublisher = eventPublisher;
         _transactionService = transactionService;
         _logger = logger;
+        _emailService = emailService;
     }
 
     [HttpPost("ProcessPayment")]
@@ -66,7 +68,7 @@ public class PaymentController : ControllerBase
             {
                 throw new Exception("Payment not success.");
             }
-
+            await _emailService.SendEmailAsync(request.Email, "Payment Transaction", "Payment Success");
             return Ok(transaction);
 
 

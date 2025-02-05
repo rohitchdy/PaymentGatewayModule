@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentTransactionService, PaymentTransactionService>();
         services.AddTransient<IHostedService, PaymentEventConsumer>();
         services.AddSerilogConfiguration(configuration);
+        services.AddEmailConfiguration(configuration);
         return services;
     }
 
@@ -169,6 +170,13 @@ public static class DependencyInjection
         Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration)
             .CreateLogger();
         services.AddSerilog(Log.Logger, dispose: false);
+        return services;
+    }
+
+    public static IServiceCollection AddEmailConfiguration(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+        services.AddScoped<IEmailService, EmailService>();
         return services;
     }
 }
