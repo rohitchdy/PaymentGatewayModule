@@ -5,7 +5,7 @@ import {
   HttpHandler,
   HttpRequest,
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Injectable()
@@ -17,7 +17,6 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
-
     if (token) {
       const modifiedReq = req.clone({
         setHeaders: {

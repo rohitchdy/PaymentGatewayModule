@@ -9,7 +9,7 @@
                             <label>UserName</label>
                             <input type="text" class="form-control" formControlName="UserName">
                             <div *ngIf="loginForm.get('UserName')?.invalid && loginForm.get('UserName')?.touched" class="text-danger">
-                                Valid email is required
+                                Username is required.
                             </div>
                         </div>
                         <div class="mb-3">

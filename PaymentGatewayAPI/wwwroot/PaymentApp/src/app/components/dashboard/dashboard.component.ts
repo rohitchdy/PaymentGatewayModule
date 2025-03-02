@@ -14,6 +14,7 @@ export class DashboardComponent implements OnInit {
   UserName: string = '';
   FromDate: string = '';
   ToDate: string = '';
+  IsModalOpen: boolean = false;
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
@@ -29,6 +30,16 @@ export class DashboardComponent implements OnInit {
         this.Transactions = res;
       }
     })
+  }
+  OpenAddTransactionModal() {
+    this.IsModalOpen = true;
+  }
+  CloseAddTransactionModal() {
+    this.IsModalOpen = false;
+  }
+
+  ResponseCallBack() {
+    this.IsModalOpen = false;
   }
 
 }

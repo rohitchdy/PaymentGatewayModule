@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 
@@ -11,6 +11,7 @@ export class PaymentCheckoutComponent implements OnInit {
   checkoutForm!: FormGroup;
   PaymentModes = ['Card', 'Bank'];
   SelectedPaymentMode: string = '';
+  @Output('payment-response-callback') PaymentResponseCallBack = new EventEmitter<object>();
 
   constructor(private fb: FormBuilder, private apiService: ApiService) {
     this.checkoutForm = this.fb.group({
@@ -72,6 +73,7 @@ export class PaymentCheckoutComponent implements OnInit {
           if (response) {
             alert('Payement Successful');
             this.checkoutForm.reset();
+            this.PaymentResponseCallBack.emit();
           } else {
             alert('Payment failed');
           }
